@@ -1,0 +1,33 @@
+fileFormatVersion: 2
+guid: 03ba92db58a31294bbb83a18c82b683b
+timeCreated: 1512367969
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - northCannonPrefab: {fileID: 1355493937834172, guid: c6ada01d1e4f8114e9550210483e0293,
+      type: 2}
+  - eastCannonPrefab: {fileID: 1355493937834172, guid: 6d006f0d1bc2ea34ba92f834ed1b7e36,
+      type: 2}
+  - southCannonPrefab: {fileID: 1355493937834172, guid: 123589a34df25c54fae9742219915faa,
+      type: 2}
+  - westCannonPrefab: {fileID: 1355493937834172, guid: 17f49ea01b95f99418085732398072bb,
+      type: 2}
+  - cargoPrefab: {fileID: 1930388870691360, guid: d0f320382dd4beb46b4ac14c68fa1556,
+      type: 2}
+  - hullPrefab: {fileID: 1465101429985690, guid: 9eccdb5e639cb5b4bb4e49cb09f88d03,
+      type: 2}
+  - sailPrefab: {fileID: 1983835735860594, guid: 002afbd914ecd8c4a9cb81157cfb788f,
+      type: 2}
+  - cannonBallPrefab: {fileID: 1924378489537858, guid: 32d591f2bf113fe46afd79507a13e53b,
+      type: 2}
+  - explodeCubePrefab: {fileID: 100006, guid: e076683e0305e35498b8e8834978c0fa, type: 2}
+  - explodeShipPrefab: {instanceID: 0}
+  - crashShipPrefab: {fileID: 100006, guid: e076683e0305e35498b8e8834978c0fa, type: 2}
+  - fireSound: {fileID: 8300000, guid: 395ebd3d6fca1ec40a6b3c7415c1edb7, type: 3}
+  - hitSound: {fileID: 8300000, guid: 1792989a5a33779428d2dbe9a9430605, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

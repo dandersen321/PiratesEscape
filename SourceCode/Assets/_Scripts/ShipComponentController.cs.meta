@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1eb9d0c866d8c9046b9691ffeea1ad0d
+timeCreated: 1512269748
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - cannonBallExplode: {fileID: 100006, guid: e076683e0305e35498b8e8834978c0fa, type: 2}
+  - shipCollisionExplode: {fileID: 100006, guid: e076683e0305e35498b8e8834978c0fa,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
