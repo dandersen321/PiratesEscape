@@ -80,6 +80,8 @@ public class Ship : MonoBehaviour {
     private float rotateSpeed;
     private int healthPerCube;
     private int damagePerHit =1;
+    public bool finishedSpawing = false;
+    private ShipTile[,] shipTiles = null;
 
     private static float maxWeight = 100f;
 
@@ -100,16 +102,125 @@ public class Ship : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if(!gameController.playerShip.alive)
+        //if(!finishedSpawing)
+        //    StartCoroutine(initEnemy(shipTiles));
+
+        if (!gameController.playerShip.alive || !alive)
             return;
 
         move();	
 	}
 
+    private IEnumerator initEnemy(ShipTile[,] shipTiles)
+    //private void initEnemy(ShipTile[,] shipTiles)
+    {
+        while(shipTiles == null)
+            yield return new WaitForSeconds(0.1f);
+        this.isPlayer = false;
+        this.shipTiles = shipTiles;
+
+        this.transform.position = new Vector3(0, -250, -250);
+
+        Debug.Log("Starting" + shipTiles.ToString());
+        for (int r = 0; r < shipTiles.GetLength(0); ++r)
+        {
+            for (int c = 0; c < shipTiles.GetLength(1); ++c)
+            {
+                //Debug.Log("Starting2");
+                if (shipTiles[r, c].comp != ShipComponent.empty)
+                {
+                    //GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    //cube.transform.position = new Vector3(cubeLength*r - ShipCreation.shipMaxHeight/2*cubeLength, 0, cubeLength*c-ShipCreation.shipMaxWidth/2*cubeLength);
+                    //cube.transform.localScale = new Vector3(cubeLength, cubeHeight, cubeLength);
+                    //cube.GetComponent<Renderer>().material.color = Color.gray;
+                    bool alreadyMade = false;
+                    foreach(var cube in shipCubes)
+                    {
+                        if(cube.row == r && cube.col == c)
+                        {
+                            alreadyMade = true;
+                        }
+                    }
+                    //Debug.Log("Starting3 " + alreadyMade.ToString());
+                    if (alreadyMade)
+                    {
+                        continue;
+                    }
+                    GameObject tile = null;
+                    //Debug.Log("creating cube! " + r.ToString() + "-" + c.ToString());
+                    tile = createTile(shipTiles[r, c].comp, r, c, shipTiles.GetLength(0), shipTiles.GetLength(1));
+                    
+                    
+                    shipCubes.Add(new ShipCube(tile, shipTiles[r, c].comp, r, c));
+
+                    if(c%10==0)
+                    {
+                        yield return new WaitForSeconds(0.01f);
+                        //yield return new WaitForSeconds(20f);
+                    }
+
+                    //if(shipTiles[r, c].comp == ShipComponent.cargo)
+                    //{
+
+                    //}
+                }
+
+            }
+            //yield return null;
+            
+        }
+
+        
+
+        Vector3 direction = new Vector3(randomFloat(0.5f, 1f), 0, randomFloat(0.5f, 1f));
+
+        //if (Random.Range(0f, 2f) < 1.5f)
+        if (true)
+        {
+            if (gameController.currentLevel == 1)
+                direction = new Vector3(Random.Range(-0.25f, 0.25f), 0, Random.Range(0.75f, 1f));
+            else
+                direction = new Vector3(Random.Range(-0.35f, 0.35f), 0, Random.Range(0.75f, 1f));
+        }
+        //Vector3 direction = Vector3.forward;
+        float distance = Random.Range(gameController.enemyShipMinDistance, gameController.enemyShipMaxDistance) + Mathf.Max(Mathf.Sqrt(shipCubes.Count));
+        //float distance = 75;
+        //float distance = 50;
+        Vector3 newPostion = gameController.playerShip.transform.position + direction * distance;
+        newPostion = new Vector3(newPostion.x, 0, newPostion.z);
+
+
+        //shipObject.transform.position = new Vector3(playerShip.transform.position.x + randomFloat(enemyShipMinDistance, enemyShipMaxDistance), 0,
+        //                                            playerShip.transform.position.y + randomFloat(enemyShipMinDistance, enemyShipMaxDistance));
+        transform.position = newPostion;
+        //transform.position = new Vector3(0, 0, 50);
+        //transform.position = gameController.playerShip.transform.position;
+        transform.LookAt(gameController.playerShip.transform.position);
+
+        this.alive = true;
+        this.finishedSpawing = true;
+        startinCubeCount = shipCubes.Count;
+        baseSpeed = 15f;
+        baseRotateSpeed = 15f;
+        updateStats();
+        Debug.Log("Enemey ship position: " + transform.position.ToString());
+        Debug.Log("Enemy Ship inited!");
+    }
+
+    float randomFloat(float minValue, float maxValue, bool allowNegative = true)
+    {
+        float value = Random.Range(minValue, maxValue);
+        //Debug.Log(Random.Range(0f, 2f) < 1f);
+        if (allowNegative && Random.Range(0f, 2f) < 0.5f)
+        {
+            return -value;
+        }
+
+        return value;
+    }
+
     public void init(bool isPlayer, ShipTile[,] shipTiles, bool alive=true)
     {
-        this.isPlayer = isPlayer;
-        this.alive = alive;
         shipCubes = new List<ShipCube>();
         nextFireTime = new Dictionary<ShipComponent, float>()
         {
@@ -118,44 +229,67 @@ public class Ship : MonoBehaviour {
             { ShipComponent.southCannon, 0f },
             { ShipComponent.westCannon, 0f },
         };
+
         //Debug.Log(this.transform.position.ToString());
-        for (int r =0; r < shipTiles.GetLength(0); ++r)
+        if (!isPlayer)
         {
-            for(int c=0; c < shipTiles.GetLength(1); ++c)
+            //Debug.Log("Starting here");
+            //initEnemy(shipTiles);
+            StartCoroutine(initEnemy(shipTiles));
+        }
+        else
+        {
+            this.isPlayer = isPlayer;
+            this.alive = alive;
+            shipCubes = new List<ShipCube>();
+            nextFireTime = new Dictionary<ShipComponent, float>()
             {
-                if(shipTiles[r,c].comp != ShipComponent.empty)
+                { ShipComponent.northCannon, 0f },
+                { ShipComponent.eastCannon, 0f },
+                { ShipComponent.southCannon, 0f },
+                { ShipComponent.westCannon, 0f },
+            };
+            for (int r = 0; r < shipTiles.GetLength(0); ++r)
+            {
+                for (int c = 0; c < shipTiles.GetLength(1); ++c)
                 {
-                    //GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    //cube.transform.position = new Vector3(cubeLength*r - ShipCreation.shipMaxHeight/2*cubeLength, 0, cubeLength*c-ShipCreation.shipMaxWidth/2*cubeLength);
-                    //cube.transform.localScale = new Vector3(cubeLength, cubeHeight, cubeLength);
-                    //cube.GetComponent<Renderer>().material.color = Color.gray;
-                    GameObject tile = null;
-                    if (alive)
+                    if (shipTiles[r, c].comp != ShipComponent.empty)
                     {
-                        //Debug.Log("creating cube!");
-                        tile = createTile(shipTiles[r, c].comp, r, c, shipTiles.GetLength(0), shipTiles.GetLength(1));
+                        //GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        //cube.transform.position = new Vector3(cubeLength*r - ShipCreation.shipMaxHeight/2*cubeLength, 0, cubeLength*c-ShipCreation.shipMaxWidth/2*cubeLength);
+                        //cube.transform.localScale = new Vector3(cubeLength, cubeHeight, cubeLength);
+                        //cube.GetComponent<Renderer>().material.color = Color.gray;
+                        GameObject tile = null;
+                        if (alive)
+                        {
+                            //Debug.Log("creating cube!");
+                            tile = createTile(shipTiles[r, c].comp, r, c, shipTiles.GetLength(0), shipTiles.GetLength(1));
+                        }
+                        shipCubes.Add(new ShipCube(tile, shipTiles[r, c].comp, r, c));
+
+                        //if(shipTiles[r, c].comp == ShipComponent.cargo)
+                        //{
+
+                        //}
                     }
-                    shipCubes.Add(new ShipCube(tile, shipTiles[r, c].comp, r, c));
 
-                    //if(shipTiles[r, c].comp == ShipComponent.cargo)
-                    //{
-
-                    //}
                 }
-                
             }
         }
 
-            
-        
-        
 
-        startinCubeCount = shipCubes.Count;
-        baseSpeed = 15f;
-        baseRotateSpeed = 15f;
-        updateStats();
 
-        Debug.Log("Ship inited!");
+
+
+        if (isPlayer)
+        {
+            startinCubeCount = shipCubes.Count;
+            baseSpeed = 15f;
+            baseRotateSpeed = 15f;
+            updateStats();
+
+            Debug.Log("Ship inited!");
+        }
     }
 
     private void updateWeight()
@@ -268,8 +402,9 @@ public class Ship : MonoBehaviour {
 
         GameObject tile = GameObject.Instantiate(prefab);
         tile.transform.parent = this.transform;
+        //Debug.Log(this.transform.position);
         //tile.transform.position = new Vector3(cubeLength * r - maxRows / 2 * cubeLength, 0, cubeLength * c - maxCols/ 2 * cubeLength);
-        tile.transform.position = new Vector3(cubeLength * c - maxCols / 2 * cubeLength, 0, cubeLength * r - maxRows / 2 * cubeLength);
+        tile.transform.localPosition = new Vector3(cubeLength * c - maxCols / 2 * cubeLength, 0, cubeLength * r - maxRows / 2 * cubeLength);
 
         //cube.transform.localScale = new Vector3(cubeLength, cubeHeight, cubeLength);
         //cube.GetComponent<Renderer>().material.color = Color.gray;
@@ -361,7 +496,7 @@ public class Ship : MonoBehaviour {
 
     void move()
     {
-        if(isPlayer)
+        if (isPlayer)
         {
             moveAsPlayer();
             fireIfApplicable();
@@ -417,10 +552,17 @@ public class Ship : MonoBehaviour {
         
     }
 
-    public void hit(GameObject objHit, bool explodeSound)
+    public IEnumerator randomExplosionTime(Vector3 position, bool explodeSound)
     {
+        float rand = Random.Range(0f, 0.3f);
+        //Debug.Log("waiting " + rand.ToString() + " seconds");
+        yield return new WaitForSeconds(rand);
+
+
+        
+
         GameObject explodeCube = GameObject.Instantiate(explodeCubePrefab);
-        explodeCube.transform.position = objHit.transform.position;
+        explodeCube.transform.position = position;
         if (explodeSound)
         {
             explodeCube.AddComponent<AudioSource>();
@@ -428,18 +570,54 @@ public class Ship : MonoBehaviour {
             explodeCube.GetComponent<AudioSource>().clip = hitSound;
             explodeCube.GetComponent<AudioSource>().Play();
         }
-        //cube.obj.GetComponent<AudioSource>().Play();
-        //health -= damagePerHit;
+        
+
+
+
+    } 
+
+    public void hit(GameObject objHit, bool explodeSound)
+    {
+        if (Vector3.Distance(this.transform.position, gameController.playerShip.transform.position) > 200)
+        {
+            Debug.Log("Skipping hit");
+            return;
+        }
+
+
+        StartCoroutine(randomExplosionTime(objHit.transform.position, explodeSound));
+
         foreach (ShipCube cube in shipCubes)
         {
             if (cube.obj == objHit)
             {
-                Debug.Log("hit!");
+                //Debug.Log("hit!");
                 shipCubes.Remove(cube);
-                GameObject.Destroy(cube.obj);
+                
+                GameObject.Destroy(objHit);
                 break;
             }
         }
+        //GameObject explodeCube = GameObject.Instantiate(explodeCubePrefab);
+        //explodeCube.transform.position = objHit.transform.position;
+        //if (explodeSound)
+        //{
+        //    //explodeCube.AddComponent<AudioSource>();
+        //    //explodeCube.GetComponent<AudioSource>().volume = 0.05f;
+        //    //explodeCube.GetComponent<AudioSource>().clip = hitSound;
+        //    //explodeCube.GetComponent<AudioSource>().Play();
+        //}
+        //cube.obj.GetComponent<AudioSource>().Play();
+        //health -= damagePerHit;
+        //foreach (ShipCube cube in shipCubes)
+        //{
+        //    if (cube.obj == objHit)
+        //    {
+        //        Debug.Log("hit!");
+        //        shipCubes.Remove(cube);
+        //        break;
+        //    }
+        //}
         updateStats();
     }
 

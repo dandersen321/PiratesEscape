@@ -114,7 +114,8 @@ public class EnemyShipFactory
     public static Ship createAnySizeShip(GameObject shipObj)
     {
         ShipTile[,] basicDesign = ShipTile.generateEmpty(Random.Range(5, 25),  Random.Range(5, 15));
-        for(int r = 0; r < basicDesign.GetLength(0); ++r)
+        //ShipTile[,] basicDesign = ShipTile.generateEmpty(50, 50);
+        for (int r = 0; r < basicDesign.GetLength(0); ++r)
         {
             for (int c = 0; c < basicDesign.GetLength(1); ++c)
             {
@@ -164,8 +165,9 @@ public class EnemyShipFactory
 
     public static Ship createRandomShip(GameObject shipObj)
     {
-        float range = UnityEngine.Random.Range(0, 5);
-        if(range >= 3)
+        //float range = UnityEngine.Random.Range(0, 5);
+        float range = 5;
+        if (range >= 3)
         {
             return createAnySizeShip(shipObj);
         }

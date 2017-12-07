@@ -35,7 +35,7 @@ public class ShipComponentController : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Trigger: " + this.name + "->" + other.gameObject.name);
+        //Debug.Log("Trigger: " + this.name + "->" + other.gameObject.name);
         //Debug.Log("Trigger Enter!");
         if(other.tag == "CannonBall" && other.GetComponent<CannonBall>().shipFired != ship && ship.alive)
         {

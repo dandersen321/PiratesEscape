@@ -18,14 +18,14 @@ public class GameController : MonoBehaviour {
 
     private float timeUntilNextEnemyShip = 0f;
     private float enemyShipInterval = 7f;
-    private float enemyShipMinDistance = 150f;
-    private float enemyShipMaxDistance = 200f;
+    public float enemyShipMinDistance = 175f;
+    public float enemyShipMaxDistance = 225f;
     private int shipsCreated;
 
     private float timeUntilNextRock = 0f;
     private float rockInterval = 6f;
-    private float rockMinDistance = 150f;
-    private float rockMaxDistance = 200f;
+    private float rockMinDistance = 200f;
+    private float rockMaxDistance = 250f;
     private int rocksCreated;
     //private float enemyShipMinDistance = 0f;
     //private float enemyShipMaxDistance = 0f;
@@ -75,11 +75,13 @@ public class GameController : MonoBehaviour {
         //messageText = GameObject.Find("MessageText").GetComponent<Text>();
         levels = new Dictionary<int, Level>();
         levels[-1] = new Level(1, 0, 100, 6f, 1f);
+
+        //levels[1] = new Level(1, 2, 500, 4000f, 1f);
         levels[1] = new Level(1, 2, 500, 5f, 1f);
-        levels[2] = new Level(2, 5, 500, 4f, 1.2f);
-        levels[3] = new Level(3, 7, 1000, 4f, 1.3f);
-        levels[4] = new Level(4, 15, 1500, 3f, 1.5f);
-        levels[5] = new Level(5, 20, 2000, 3f, 1.7f);
+        levels[2] = new Level(2, 5, 500, 5f, 1.2f);
+        levels[3] = new Level(3, 7, 1000, 5f, 1.4f);
+        levels[4] = new Level(4, 15, 1500, 5f, 1.7f);
+        levels[5] = new Level(5, 20, 2000, 5f, 1.9f);
         currentLevel = 1;
 
         startLevel();
@@ -112,8 +114,18 @@ public class GameController : MonoBehaviour {
 
     void spawnEnemyShip()
     {
+        var ships = GameObject.FindGameObjectsWithTag("Ship");
+        foreach (var ship in ships)
+        {
+            var shipScript = ship.GetComponent<Ship>();
+            if (!shipScript.isPlayer || !shipScript.finishedSpawing)
+            {
+                Debug.Log("ship still spawning, holding off");
+            }
+        }
         timeUntilNextEnemyShip = Time.time + enemyShipInterval;
         GameObject shipObject = GameObject.Instantiate(shipPrefab);
+        //GameObject shipObject = GameObject.Instantiate(shipPrefab);
         Ship randomEnemyShip = EnemyShipFactory.createRandomShip(shipObject);
         //var ship = EnemyShipFactory.createFrigate(shipObject);
         //shipObject.transform.position = new Vector3(25, 0, 25);
@@ -129,30 +141,13 @@ public class GameController : MonoBehaviour {
         //    direction = new Vector3(Random.Range(-1f, -0.5f), 0, Random.Range(-1f, 1f));
         //}
 
-        Vector3 direction = new Vector3(randomFloat(0.5f, 1f), 0, randomFloat(0.5f, 1f));
-
-        //if (Random.Range(0f, 2f) < 1.5f)
-        if(true)
-        {
-            if(currentLevel == 1)
-                direction = new Vector3(Random.Range(-0.25f, 0.25f), 0, Random.Range(0.75f, 1f));
-            else
-                direction = new Vector3(Random.Range(-0.35f, 0.35f), 0, Random.Range(0.75f, 1f));
-        }
-        //Vector3 direction = Vector3.forward;
-        float distance = Random.Range(enemyShipMinDistance, enemyShipMaxDistance) + Mathf.Max(Mathf.Sqrt(randomEnemyShip.shipCubes.Count));
-        Vector3 newPostion = playerShip.transform.position + direction * distance;
-
-
-        //shipObject.transform.position = new Vector3(playerShip.transform.position.x + randomFloat(enemyShipMinDistance, enemyShipMaxDistance), 0,
-        //                                            playerShip.transform.position.y + randomFloat(enemyShipMinDistance, enemyShipMaxDistance));
-        shipObject.transform.position = newPostion;
-        shipObject.transform.LookAt(playerShip.transform.position);
+        
         //Debug.Log(playerShip.transform.position.ToString() + "->" +  shipObject.transform.position.ToString() + "->" + distance);
 
         float interval = enemyShipInterval;
-        if (shipsCreated < 10)
-            interval /= 2;
+        //if (shipsCreated < 10)
+        //    interval /= 2;
+
         timeUntilNextEnemyShip = Time.time + interval;
 
         shipsCreated += 1;
@@ -229,7 +224,7 @@ public class GameController : MonoBehaviour {
         //                                            playerShip.transform.position.y + randomFloat(rockMinDistance, rockMaxDistance));
         rockObject.transform.position = newPostion;
         
-        Debug.Log(playerShip.transform.position.ToString() + "->" + rockObject.transform.position.ToString() + "->" + distance);
+        //Debug.Log(playerShip.transform.position.ToString() + "->" + rockObject.transform.position.ToString() + "->" + distance);
 
         float interval = rockInterval;
         if (rocksCreated < 5)
@@ -276,12 +271,12 @@ public class GameController : MonoBehaviour {
         objective.transform.position = new Vector3(0, 0, curLevel.distanceToTarget);
         Debug.Log(objective.transform.position);
         GameObject.Find("DescriptionText").GetComponent<Text>().text = string.Format("<b>Mission {0}:</b> Escape with least {1} cargo. You will get 200g per cargo and 5g per ship part destroyed.  Ultimate goal is to make the most money possible.\n", currentLevel, curLevel.numberOfCargoNeeded) +
-                                                                        string.Format("<b>Cost:</b> Guns cost {0}g & {1}weight, cargo {2}g & {3}weight, sail {4}g & {5}weight, hull {6}g & {7}weight.\n", 
+                                                                        string.Format("<b>Cost:</b> Guns cost {0}g & {1}weight, cargo {2}g & {3}weight, sail {4}g & {5}weight, hull {6}g & {7}weight.\n",
+                                                                        "<b>Controls:</b> Use WASD to move and Arrow Keys to fire.\n" +
                                                                         Ship.pricePerComp[ShipComponent.northCannon], Ship.weightPerComp[ShipComponent.northCannon],
                                                                         Ship.pricePerComp[ShipComponent.cargo], Ship.weightPerComp[ShipComponent.cargo],
                                                                         Ship.pricePerComp[ShipComponent.sail], Ship.weightPerComp[ShipComponent.sail],
                                                                         Ship.pricePerComp[ShipComponent.hull], Ship.weightPerComp[ShipComponent.hull]) +
-                                                                        "<b>Controls:</b> Use WASD to move and Arrow Keys to fire.\n" +
                                                                         "<b>Detail:</b> You are a pirate trying to escape the royal navy after a day of plundering.  Reach your secret cove before you are overwhelmed and lost in the misty waters.  Shooting enemy ships will slow them down.  Design your own ship but be careful; the more weight you have the worse your speed. Use guns to defend yourself, sails to move faster (reduce weight), hull to create cheap defense, and cargo to make money. Note: technically your ship components don't need to be attached to each other (they bind together through the power of friendship).";
         //GameObject.Find("DescriptionText").GetComponent<Text>().resizeTextForBestFit = true;
         shipCreationCanvas.enabled = true;
