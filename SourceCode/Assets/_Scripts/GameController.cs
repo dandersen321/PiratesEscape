@@ -271,8 +271,8 @@ public class GameController : MonoBehaviour {
         objective.transform.position = new Vector3(0, 0, curLevel.distanceToTarget);
         Debug.Log(objective.transform.position);
         GameObject.Find("DescriptionText").GetComponent<Text>().text = string.Format("<b>Mission {0}:</b> Escape with least {1} cargo. You will get 200g per cargo and 5g per ship part destroyed.  Ultimate goal is to make the most money possible.\n", currentLevel, curLevel.numberOfCargoNeeded) +
-                                                                        string.Format("<b>Cost:</b> Guns cost {0}g & {1}weight, cargo {2}g & {3}weight, sail {4}g & {5}weight, hull {6}g & {7}weight.\n",
                                                                         "<b>Controls:</b> Use WASD to move and Arrow Keys to fire.\n" +
+                                                                        string.Format("<b>Cost:</b> Guns cost {0}g & {1}weight, cargo {2}g & {3}weight, sail {4}g & {5}weight, hull {6}g & {7}weight.\n",
                                                                         Ship.pricePerComp[ShipComponent.northCannon], Ship.weightPerComp[ShipComponent.northCannon],
                                                                         Ship.pricePerComp[ShipComponent.cargo], Ship.weightPerComp[ShipComponent.cargo],
                                                                         Ship.pricePerComp[ShipComponent.sail], Ship.weightPerComp[ShipComponent.sail],

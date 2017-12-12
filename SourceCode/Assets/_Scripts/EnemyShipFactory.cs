@@ -165,8 +165,8 @@ public class EnemyShipFactory
 
     public static Ship createRandomShip(GameObject shipObj)
     {
-        //float range = UnityEngine.Random.Range(0, 5);
-        float range = 5;
+        float range = UnityEngine.Random.Range(0, 5);
+        //float range = 5;
         if (range >= 3)
         {
             return createAnySizeShip(shipObj);
